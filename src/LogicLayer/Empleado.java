@@ -23,7 +23,4 @@ public class Empleado extends Usuario{
 		int opcion = JOptionPane.showOptionDialog(null, "Bienvenido empleado", "", 0, 0, null, this.getRol().getOpciones(),this.getRol().getOpciones()[0]);
 	
 	}
-	
-	
-	
 }
