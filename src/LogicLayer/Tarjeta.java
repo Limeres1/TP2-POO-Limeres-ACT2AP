@@ -3,7 +3,7 @@ package LogicLayer;
 import java.time.LocalDate;
 
 public class Tarjeta {
-	private Cliente titular;
+	private Cuenta titular;
 	private String numero;
 	private String cvv;
 	private double limite;
