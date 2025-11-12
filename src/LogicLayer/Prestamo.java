@@ -14,16 +14,15 @@ public class Prestamo {
 	private Cuenta solicitante;
 	private LinkedList<Cuota> cuotas;
 	
-	
-	public Prestamo(double montoTotal,double tasaInteres, int plazoMeses, LocalDate fechaVencimiento,Cuenta solicitante) {
-		super();
-		this.montoTotal = montoTotal;
-		this.tasaInteres = tasaInteres;
-		this.plazoMeses = plazoMeses;
-		this.fechaVencimiento = fechaVencimiento;
-		this.solicitante = solicitante;
+	public Prestamo(double montoTotal, double tasaInteres, int plazoMeses, LocalDate fechaVencimiento, Cuenta solicitante) {
+	       super();
+	       this.montoTotal = montoTotal;
+	       this.tasaInteres = tasaInteres;
+	       this.plazoMeses = plazoMeses;
+	       this.fechaVencimiento = fechaVencimiento;
+	       this.solicitante = solicitante;
+	       this.cuotas = new LinkedList<Cuota>(); // Inicializar lista
 	}
-
 
 	public double getMontoTotal() {
 		return montoTotal;

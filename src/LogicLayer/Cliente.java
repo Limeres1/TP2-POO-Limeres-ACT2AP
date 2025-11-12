@@ -1,5 +1,6 @@
 package LogicLayer;
 
+import java.time.LocalDate;
 import javax.swing.JOptionPane;
 
 public class Cliente extends Usuario {
@@ -31,31 +32,25 @@ public class Cliente extends Usuario {
                 this.getRol().getOpciones()[0]);
             
             switch (opcion) {
-                case 0: // Transferir
-                    transferir();
-                    break;
-                case 1: // Depositar
-                    depositar();
-                    break;
-                case 2: // Retirar
-                    retirar();
-                    break;
-                case 3: // Consultar saldo
-                    consultarSaldo();
-                    break;
-                case 4: // Historial transacciones
-                    verHistorial();
-                    break;
-                case 5: // Salir
-                    salir = true;
-                    break;
-                default:
-                    break;
+                case 0: transferir(); break;
+                case 1: depositar(); break;
+                case 2: retirar(); break;
+                case 3: consultarSaldo(); break;
+                case 4: verHistorial(); break;
+                case 5: pedirPrestamo(); break;
+                case 6: consultarPrestamo(); break;
+                case 7: salir = true; break;
+                default: break;
             }
         }
     }
     
     private void transferir() {
+        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
+            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede realizar transferencias");
+            return;
+        }
+        
         int cuentaDestino = Validaciones.IngresarInt("Ingrese número de cuenta destino:");
         int monto = Validaciones.IngresarInt("Ingrese monto a transferir:");
         
@@ -69,18 +64,20 @@ public class Cliente extends Usuario {
             return;
         }
         
-        // Buscar cuenta destino (en un sistema real, buscaría en base de datos)
         Cuenta destino = buscarCuenta(cuentaDestino);
         if (destino == null) {
             JOptionPane.showMessageDialog(null, "Cuenta destino no encontrada");
             return;
         }
         
-        // Realizar transferencia
+        if (!destino.getEstadoCuenta().equals("ACTIVA")) {
+            JOptionPane.showMessageDialog(null, "Cuenta destino está inactiva");
+            return;
+        }
+        
         cuenta.setSaldo(cuenta.getSaldo() - monto);
         destino.setSaldo(destino.getSaldo() + monto);
         
-        // Registrar transacción
         Transaccion transaccion = new Transaccion(monto, "TRANSFERENCIA", "Electrónico", cuenta, destino);
         cuenta.getTransacciones().add(transaccion);
         destino.getTransacciones().add(transaccion);
@@ -89,6 +86,11 @@ public class Cliente extends Usuario {
     }
     
     private void depositar() {
+        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
+            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede realizar depósitos");
+            return;
+        }
+        
         int monto = Validaciones.IngresarInt("Ingrese monto a depositar:");
         
         if (monto <= 0) {
@@ -105,6 +107,11 @@ public class Cliente extends Usuario {
     }
     
     private void retirar() {
+        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
+            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede realizar retiros");
+            return;
+        }
+        
         int monto = Validaciones.IngresarInt("Ingrese monto a retirar:");
         
         if (monto <= 0) {
@@ -128,7 +135,8 @@ public class Cliente extends Usuario {
     private void consultarSaldo() {
         JOptionPane.showMessageDialog(null, 
             "Número de cuenta: " + cuenta.getNum_cuenta() + 
-            "\nSaldo actual: $" + cuenta.getSaldo());
+            "\nSaldo actual: $" + cuenta.getSaldo() +
+            "\nEstado: " + cuenta.getEstadoCuenta());
     }
     
     private void verHistorial() {
@@ -137,18 +145,151 @@ public class Cliente extends Usuario {
             return;
         }
         
-        StringBuilder historial = new StringBuilder("Historial de transacciones:\n");
+    
+        String historial = "Historial de transacciones:\n\n";
         for (Transaccion trans : cuenta.getTransacciones()) {
-            historial.append(trans.getTipo()).append(": $").append(trans.getMonto())
-                     .append(" - ").append(trans.getFecha_hora()).append("\n");
+            historial = historial + trans.getTipo() + ": $" + trans.getMonto() + 
+                       " - " + trans.getFecha_hora() + "\n";
         }
         
-        JOptionPane.showMessageDialog(null, historial.toString());
+        JOptionPane.showMessageDialog(null, historial);
+    }
+    
+    private void pedirPrestamo() {
+        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
+            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede solicitar préstamos");
+            return;
+        }
+        
+        double monto = Validaciones.IngresarDouble("Ingrese monto del préstamo:");
+        
+        if (monto <= 0) {
+            JOptionPane.showMessageDialog(null, "El monto debe ser mayor a 0");
+            return;
+        }
+        
+        if (monto > 50000) {
+            JOptionPane.showMessageDialog(null, "El monto máximo por préstamo es $50,000");
+            return;
+        }
+        
+        int meses = Validaciones.IngresarInt("Ingrese a cuántos meses (6, 12, 24, 36):");
+        if (meses != 6 && meses != 12 && meses != 24 && meses != 36) {
+            JOptionPane.showMessageDialog(null, "Plazo no válido. Use: 6, 12, 24 o 36 meses");
+            return;
+        }
+        
+        // Calcular prestamo
+        double tasa = calcularTasaInteres(meses);
+        double interesTotal = monto * tasa;
+        double montoTotal = monto + interesTotal;
+        double cuotaMensual = montoTotal / meses;
+        
+        LocalDate fechaVencimiento = LocalDate.now().plusMonths(meses);
+        
+        // Mostrar resumen
+        String resumen = String.format(
+            "RESUMEN DEL PRÉSTAMO:\n\n" +
+            "Monto solicitado: $%.2f\n" +
+            "Plazo: %d meses\n" +
+            "Tasa de interés: %.1f%%\n" +
+            "Interés total: $%.2f\n" +
+            "Monto total a pagar: $%.2f\n" +
+            "Cuota mensual: $%.2f\n" +
+            "Fecha de vencimiento: %s\n\n" +
+            "¿Aceptar el préstamo?",
+            monto, meses, tasa * 100, interesTotal, montoTotal, cuotaMensual, fechaVencimiento
+        );
+        
+        int confirmacion = JOptionPane.showConfirmDialog(null, resumen, "Confirmar Préstamo", JOptionPane.YES_NO_OPTION);
+        
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            // Crear préstamo
+            Prestamo prestamo = new Prestamo(monto, tasa, meses, fechaVencimiento, this.cuenta);
+            prestamo.setMontoTotal(montoTotal);
+            prestamo.setMontoPendiente(montoTotal);
+            prestamo.setEstado("APROBADO");
+            prestamo.setFechaAprobacion(LocalDate.now());
+            
+            // Generar cuotas
+            generarCuotas(prestamo, cuotaMensual);
+            
+            // Agregar préstamo
+            this.cuenta.getPrestamos().add(prestamo);
+            
+            // Depositar dinero
+            this.cuenta.setSaldo(this.cuenta.getSaldo() + (int)monto);
+            
+            // Registrar transacción
+            Transaccion transaccion = new Transaccion(monto, "PRÉSTAMO", "Desembolso", null, this.cuenta);
+            this.cuenta.getTransacciones().add(transaccion);
+            
+            JOptionPane.showMessageDialog(null, 
+                "¡Préstamo aprobado!\n" +
+                "El monto de $" + monto + " ha sido depositado.\n" +
+                "Nuevo saldo: $" + this.cuenta.getSaldo());
+        }
+    }
+    
+    private void consultarPrestamo() {
+        if (cuenta.getPrestamos().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No tiene préstamos activos");
+            return;
+        }
+        
+        for (Prestamo prestamo : cuenta.getPrestamos()) {
+            if ("APROBADO".equals(prestamo.getEstado())) {
+                int cuotasPagadas = 0;
+                int cuotasPendientes = 0;
+                
+                for (Cuota cuota : prestamo.getCuotas()) {
+                    if ("PAGADA".equals(cuota.getEstado())) {
+                        cuotasPagadas++;
+                    } else {
+                        cuotasPendientes++;
+                    }
+                }
+                
+                
+                String info = "INFORMACIÓN DEL PRÉSTAMO:\n\n" +
+                             "Monto inicial: $" + (prestamo.getMontoTotal() - (prestamo.getMontoTotal() * prestamo.getTasaInteres())) + "\n" +
+                             "Monto total a pagar: $" + prestamo.getMontoTotal() + "\n" +
+                             "Monto pendiente: $" + prestamo.getMontoPendiente() + "\n" +
+                             "Cuotas totales: " + prestamo.getPlazoMeses() + "\n" +
+                             "Cuotas pagadas: " + cuotasPagadas + "\n" +
+                             "Cuotas pendientes: " + cuotasPendientes + "\n" +
+                             "Cuota mensual: $" + prestamo.getCuotas().get(0).getMontoCuota() + "\n" +
+                             "Fecha vencimiento: " + prestamo.getFechaVencimiento();
+                
+                JOptionPane.showMessageDialog(null, info);
+                return;
+            }
+        }
+    }
+    
+    private double calcularTasaInteres(int meses) {
+        switch (meses) {
+            case 6: return 0.05;  // 5%
+            case 12: return 0.08; // 8%
+            case 24: return 0.12; // 12%
+            case 36: return 0.15; // 15%
+            default: return 0.10; // 10%
+        }
+    }
+    
+    private void generarCuotas(Prestamo prestamo, double cuotaMensual) {
+        prestamo.setCuotas(new java.util.LinkedList<Cuota>());
+        
+        for (int i = 1; i <= prestamo.getPlazoMeses(); i++) {
+            LocalDate fechaVencimiento = LocalDate.now().plusMonths(i);
+            Cuota cuota = new Cuota(cuotaMensual, fechaVencimiento, "PENDIENTE", 0);
+            prestamo.getCuotas().add(cuota);
+        }
     }
     
     private Cuenta buscarCuenta(int numeroCuenta) {
         for (Usuario usuario : Usuario.getUsuarios()) {
-            if (usuario instanceof Cliente) {
+            if (usuario.esCliente()) {
                 Cliente cliente = (Cliente) usuario;
                 if (cliente.getCuenta().getNum_cuenta() == numeroCuenta) {
                     return cliente.getCuenta();

@@ -2,10 +2,9 @@ package LogicLayer;
 
 public enum Rol {
 	
-	Empleado(new String[] {"Dar de baja cajero","Reponer dinero","Salir"}),
-	Cliente(new String[] {"Transferir","Depositar","Retirar","Consultar saldo","Historial transacciones","Salir"});
-	
-	
+	Empleado(new String[] {"Dar de baja cuenta","Reponer dinero","Ver cuentas", "Salir"}),
+	Cliente(new String[] {"Transferir","Depositar","Retirar","Consultar saldo","Historial transacciones", "Pedir prestamo", "Consultar prestamo","Salir"});
+
 	private String[] opciones;
 
 	private Rol(String[] opciones) {
