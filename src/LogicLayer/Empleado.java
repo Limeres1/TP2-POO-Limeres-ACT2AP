@@ -49,20 +49,23 @@ public class Empleado extends Usuario{
     
     private void darDeBajaCuenta() {
         int numeroCuenta = Validaciones.IngresarInt("Ingrese número de cuenta a dar de baja:");
-        
+ 	  Usuario usuarioAEliminar = null;      
+    		
         for (Usuario usuario : Usuario.getUsuarios()) {
             if (usuario.esCliente()) {
                 Cliente cliente = (Cliente) usuario;
                 if (cliente.getCuenta().getNum_cuenta() == numeroCuenta) {
-                    cliente.getCuenta().setEstadoCuenta("INACTIVA");
-                    JOptionPane.showMessageDialog(null, "Cuenta " + numeroCuenta + " dada de baja exitosamente");
+                    usuarioAEliminar = cliente;
+                    Usuario.getUsuarios().remove(usuarioAEliminar);
+                   JOptionPane.showMessageDialog(null, "Cuenta " + numeroCuenta + " dada de baja exitosamente");
                     return;
                 }
             }
         }
-        
+       
         JOptionPane.showMessageDialog(null, "Cuenta no encontrada");
-    }
+   }
+    
     
     private void reponerDinero() {
         int numeroCuenta = Validaciones.IngresarInt("Ingrese número de cuenta:");
@@ -97,7 +100,7 @@ public class Empleado extends Usuario{
             return;
         }
         
-        // SIN StringBuilder
+       
         String info = "LISTA DE CUENTAS:\n\n";
         
         for (Usuario usuario : Usuario.getUsuarios()) {

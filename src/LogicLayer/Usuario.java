@@ -1,8 +1,6 @@
 package LogicLayer;
 import java.util.LinkedList;
 
-import javax.swing.JOptionPane;
-
 public abstract class Usuario {
 
     private static LinkedList<Usuario> usuarios = new LinkedList<Usuario>();
