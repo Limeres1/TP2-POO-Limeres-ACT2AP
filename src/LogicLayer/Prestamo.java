@@ -21,7 +21,7 @@ public class Prestamo {
 	       this.plazoMeses = plazoMeses;
 	       this.fechaVencimiento = fechaVencimiento;
 	       this.solicitante = solicitante;
-	       this.cuotas = new LinkedList<Cuota>(); // Inicializar lista
+	       this.cuotas = new LinkedList<Cuota>();
 	}
 
 	public double getMontoTotal() {

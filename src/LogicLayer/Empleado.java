@@ -48,15 +48,13 @@ public class Empleado extends Usuario{
     }
     
     private void darDeBajaCuenta() {
-        int numeroCuenta = Validaciones.IngresarInt("Ingrese número de cuenta a dar de baja:");
- 	  Usuario usuarioAEliminar = null;      
+        int numeroCuenta = Validaciones.IngresarInt("Ingrese número de cuenta a dar de baja:");    
     		
         for (Usuario usuario : Usuario.getUsuarios()) {
             if (usuario.esCliente()) {
                 Cliente cliente = (Cliente) usuario;
                 if (cliente.getCuenta().getNum_cuenta() == numeroCuenta) {
-                    usuarioAEliminar = cliente;
-                    Usuario.getUsuarios().remove(usuarioAEliminar);
+                    Usuario.getUsuarios().remove(cliente);
                    JOptionPane.showMessageDialog(null, "Cuenta " + numeroCuenta + " dada de baja exitosamente");
                     return;
                 }

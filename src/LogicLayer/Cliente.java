@@ -1,6 +1,8 @@
 package LogicLayer;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
+
 import javax.swing.JOptionPane;
 
 public class Cliente extends Usuario {
@@ -156,11 +158,7 @@ public class Cliente extends Usuario {
     }
     
     private void pedirPrestamo() {
-        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
-            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede solicitar préstamos");
-            return;
-        }
-        
+    	
         double monto = Validaciones.IngresarDouble("Ingrese monto del préstamo:");
         
         if (monto <= 0) {
@@ -179,7 +177,7 @@ public class Cliente extends Usuario {
             return;
         }
         
-        // Calcular prestamo
+        //prestamo
         double tasa = calcularTasaInteres(meses);
         double interesTotal = monto * tasa;
         double montoTotal = monto + interesTotal;
@@ -187,7 +185,7 @@ public class Cliente extends Usuario {
         
         LocalDate fechaVencimiento = LocalDate.now().plusMonths(meses);
         
-        // Mostrar resumen
+        
         String resumen = String.format(
             "RESUMEN DEL PRÉSTAMO:\n\n" +
             "Monto solicitado: $%.2f\n" +
@@ -204,23 +202,23 @@ public class Cliente extends Usuario {
         int confirmacion = JOptionPane.showConfirmDialog(null, resumen, "Confirmar Préstamo", JOptionPane.YES_NO_OPTION);
         
         if (confirmacion == JOptionPane.YES_OPTION) {
-            // Crear préstamo
+            
             Prestamo prestamo = new Prestamo(monto, tasa, meses, fechaVencimiento, this.cuenta);
             prestamo.setMontoTotal(montoTotal);
             prestamo.setMontoPendiente(montoTotal);
             prestamo.setEstado("APROBADO");
             prestamo.setFechaAprobacion(LocalDate.now());
             
-            // Generar cuotas
+          
             generarCuotas(prestamo, cuotaMensual);
             
-            // Agregar préstamo
+          
             this.cuenta.getPrestamos().add(prestamo);
             
-            // Depositar dinero
+            
             this.cuenta.setSaldo(this.cuenta.getSaldo() + (int)monto);
             
-            // Registrar transacción
+            
             Transaccion transaccion = new Transaccion(monto, "PRÉSTAMO", "Desembolso", null, this.cuenta);
             this.cuenta.getTransacciones().add(transaccion);
             
@@ -237,32 +235,57 @@ public class Cliente extends Usuario {
             return;
         }
         
+        LinkedList<Prestamo> prestamosAprobados = new LinkedList<>();
         for (Prestamo prestamo : cuenta.getPrestamos()) {
             if ("APROBADO".equals(prestamo.getEstado())) {
-                int cuotasPagadas = 0;
-                int cuotasPendientes = 0;
-                
-                for (Cuota cuota : prestamo.getCuotas()) {
-                    if ("PAGADA".equals(cuota.getEstado())) {
-                        cuotasPagadas++;
-                    } else {
-                        cuotasPendientes++;
+                prestamosAprobados.add(prestamo);
+            }
+        }
+        
+        if (prestamosAprobados.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No tiene préstamos aprobados");
+            return;
+        }
+        
+        String[] opciones = new String[prestamosAprobados.size()];
+        for (int i = 0; i < prestamosAprobados.size(); i++) {
+            Prestamo p = prestamosAprobados.get(i);
+            opciones[i] = "Préstamo: $" + String.format("%.2f", p.getMontoTotal());
+        }
+        
+        String seleccion = (String) JOptionPane.showInputDialog(
+            null, "Seleccione un préstamo:", "Consultar Préstamos",
+            JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]
+        );
+        
+        if (seleccion != null) {
+            for (int i = 0; i < opciones.length; i++) {
+                if (opciones[i].equals(seleccion)) {
+                    Prestamo prestamo = prestamosAprobados.get(i);
+                    
+                    int cuotasPagadas = 0;
+                    int cuotasPendientes = 0;
+                    for (Cuota cuota : prestamo.getCuotas()) {
+                        if ("PAGADA".equals(cuota.getEstado())) {
+                            cuotasPagadas++;
+                        } else {
+                            cuotasPendientes++;
+                        }
                     }
+                    
+                    String info = "INFORMACIÓN DEL PRÉSTAMO:\n\n" +
+                                 "Monto inicial: $" + String.format("%.2f", prestamo.getMontoTotal() / (1 + prestamo.getTasaInteres())) + "\n" +
+                                 "Monto total: $" + String.format("%.2f", prestamo.getMontoTotal()) + "\n" +
+                                 "Monto pendiente: $" + String.format("%.2f", prestamo.getMontoPendiente()) + "\n" +
+                                 "Cuotas totales: " + prestamo.getPlazoMeses() + "\n" +
+                                 "Cuotas pagadas: " + cuotasPagadas + "\n" +
+                                 "Cuotas pendientes: " + cuotasPendientes + "\n" +
+                                 "Cuota mensual: $" + String.format("%.2f", prestamo.getCuotas().get(0).getMontoCuota()) + "\n" +
+                                 "Fecha vencimiento: " + prestamo.getFechaVencimiento();
+                    
+                    JOptionPane.showMessageDialog(null, info);
+                    break;
                 }
-                
-                
-                String info = "INFORMACIÓN DEL PRÉSTAMO:\n\n" +
-                             "Monto inicial: $" + (prestamo.getMontoTotal() - (prestamo.getMontoTotal() * prestamo.getTasaInteres())) + "\n" +
-                             "Monto total a pagar: $" + prestamo.getMontoTotal() + "\n" +
-                             "Monto pendiente: $" + prestamo.getMontoPendiente() + "\n" +
-                             "Cuotas totales: " + prestamo.getPlazoMeses() + "\n" +
-                             "Cuotas pagadas: " + cuotasPagadas + "\n" +
-                             "Cuotas pendientes: " + cuotasPendientes + "\n" +
-                             "Cuota mensual: $" + prestamo.getCuotas().get(0).getMontoCuota() + "\n" +
-                             "Fecha vencimiento: " + prestamo.getFechaVencimiento();
-                
-                JOptionPane.showMessageDialog(null, info);
-                return;
             }
         }
     }

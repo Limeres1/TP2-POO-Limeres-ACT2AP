@@ -9,7 +9,7 @@ public abstract class Validaciones {
         do {
             dato = JOptionPane.showInputDialog(mensaje);
             if (dato == null) {
-                return null; // Usuario canceló
+                return null;
             }
             if (dato.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Error: No puede estar vacío");
@@ -26,13 +26,12 @@ public abstract class Validaciones {
             flag = true;
             dato = JOptionPane.showInputDialog(mensaje);
             if (dato == null) {
-                return -1; // Usuario canceló
+                return -1;
             }
             if (dato.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Error: No puede estar vacío");
                 flag = false;
             } else {
-                // Verificar que sea número válido
                 try {
                     Integer.parseInt(dato);
                 } catch (NumberFormatException e) {
@@ -67,12 +66,5 @@ public abstract class Validaciones {
             }
         } while (!flag);
         return Double.parseDouble(dato);
-    }
-    
-    public static boolean validarEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return false;
-        }
-        return email.contains("@") && email.contains(".");
     }
 }
