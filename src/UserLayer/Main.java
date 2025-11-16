@@ -12,7 +12,7 @@ import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
-        inicializarDatosPrueba();
+        adminPrueba();
         
         boolean salir = false;
         
@@ -29,7 +29,7 @@ public class Main {
                 case 0: // Ingresar
                     login();
                     break;
-                case 1: // Registrarse
+                case 1: // Registrarse cliente
                     registrarCliente();
                     break;
                 case 2: // Salir
@@ -42,21 +42,17 @@ public class Main {
         }
     }
     
-    private static void inicializarDatosPrueba() {
-        // Empleado/Admin de prueba
-        Usuario.getUsuarios().add(new Empleado("admin@banco", "admin123", LocalDate.now()));
-        
-        // Cliente de prueba
-        Cliente clientePrueba = new Cliente("cliente@prueba", "cliente123");
-        Cuenta cuentaPrueba = new Cuenta(5000);
-        clientePrueba.setCuenta(cuentaPrueba);
-        Usuario.getUsuarios().add(clientePrueba);
-    }
+    private static void adminPrueba() { Usuario.getUsuarios().add(new Empleado("admin@banco", "admin123", LocalDate.now()));}
     
     private static void login() {
         String mail = Validaciones.IngresarString("Ingrese su email:");
         String contr = Validaciones.IngresarString("Ingrese su contraseña:");
-        
+        if(mail == null) {
+        	return;
+        }
+        if(contr == null) {
+        	return;
+        }
         Usuario usuario = Usuario.Login(mail, contr);
         if (usuario != null) {
             JOptionPane.showMessageDialog(null, "Login exitoso!");
@@ -67,9 +63,11 @@ public class Main {
     }
     
     private static void registrarCliente() {
-        String mail = Validaciones.IngresarString("Ingrese su email:");
+        String mail = Validaciones.validarEmailCompleto("Ingrese su email:");
+        if(mail == null) {
+        	return;
+        }
         
-        // Verificar si el email ya existe
         for (Usuario usuario : Usuario.getUsuarios()) {
             if (usuario.getMail().equals(mail)) {
                 JOptionPane.showMessageDialog(null, "El email ya está registrado");
@@ -78,11 +76,13 @@ public class Main {
         }
         
         String contr = Validaciones.IngresarString("Ingrese su contraseña:");
+        if(contr == null) {
+        	return;
+        }
         
-        // Crear nuevo cliente
         Cliente nuevoCliente = new Cliente(mail, contr);
         
-        // Crear cuenta automáticamente para el cliente
+        
         Cuenta nuevaCuenta = new Cuenta(0);
         nuevoCliente.setCuenta(nuevaCuenta);
         Usuario.getUsuarios().add(nuevoCliente);
