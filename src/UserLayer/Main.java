@@ -1,14 +1,12 @@
 package UserLayer;
 
-import javax.swing.JOptionPane;
-
 import LogicLayer.Cliente;
 import LogicLayer.Cuenta;
 import LogicLayer.Empleado;
 import LogicLayer.Usuario;
 import LogicLayer.Validaciones;
-
 import java.time.LocalDate;
+import javax.swing.JOptionPane;
 
 public class Main {
     public static void main(String[] args) {
@@ -42,7 +40,7 @@ public class Main {
         }
     }
     
-    private static void adminPrueba() { Usuario.getUsuarios().add(new Empleado("admin@banco", "admin123", LocalDate.now()));}
+    private static void adminPrueba() { Usuario.getUsuarios().add(new Empleado("admin@banco.com", "admin123", LocalDate.now()));}
     
     private static void login() {
         String mail = Validaciones.IngresarString("Ingrese su email:");
@@ -63,7 +61,7 @@ public class Main {
     }
     
     private static void registrarCliente() {
-        String mail = Validaciones.validarEmailCompleto("Ingrese su email:");
+        String mail = Validaciones.IngresarMail("Ingrese su email:");
         if(mail == null) {
         	return;
         }

@@ -5,6 +5,24 @@ import javax.swing.JOptionPane;
 public abstract class Validaciones {
 
 	
+	
+    public static String IngresarMail(String mensaje) {
+        String mail;
+        do {
+        	mail = JOptionPane.showInputDialog(mensaje);
+            if (mail == null) {
+            	JOptionPane.showMessageDialog(null, "Error: No debe estar vacio.");
+                return null;
+            }
+            if (!mail.matches("[^@]+@[^@]+\\.[a-zA-Z]{2,}")) {
+                JOptionPane.showMessageDialog(null, "Error: Debe seguir el ejemplo: nombre@dominio.com/.ar");
+                return null;
+            }
+        } while (mail.trim().isEmpty());
+        return mail;
+    }
+	
+	
 	public static String validarEmailCompleto(String mensaje) {
 	    String dato;
 	    
