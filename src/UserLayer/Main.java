@@ -43,11 +43,11 @@ public class Main {
     private static void adminPrueba() { Usuario.getUsuarios().add(new Empleado("admin@banco.com", "admin123", LocalDate.now()));}
     
     private static void login() {
-        String mail = Validaciones.IngresarString("Ingrese su email:");
-        String contr = Validaciones.IngresarString("Ingrese su contraseña:");
+        String mail = Validaciones.IngresarMail("Ingrese su email:");
         if(mail == null) {
         	return;
         }
+        String contr = Validaciones.IngresarString("Ingrese su contraseña:");
         if(contr == null) {
         	return;
         }

@@ -51,9 +51,8 @@ public class Empleado extends Usuario{
     }
     
     private static void crearEmpleado() {
-        String mail = Validaciones.IngresarString("Ingrese su email:");
+        String mail = Validaciones.IngresarMail("Ingrese su email:");
         
-        // Verificar si el email ya existe
         for (Usuario usuario : Usuario.getUsuarios()) {
             if (usuario.getMail().equals(mail)) {
                 JOptionPane.showMessageDialog(null, "El email ya está registrado");
@@ -63,12 +62,9 @@ public class Empleado extends Usuario{
         
         String contr = Validaciones.IngresarString("Ingrese su contraseña:");
         
-        // Crear nuevo cliente
+
         Usuario.getUsuarios().add(new Empleado(mail, contr, LocalDate.now()));
-        
-        // Crear cuenta automáticamente para el cliente
-        
-        
+              
         JOptionPane.showMessageDialog(null, 
             "Empleado registrado exitosamente!\n" +
             "Email: " + mail);

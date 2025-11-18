@@ -4,7 +4,7 @@ import java.util.LinkedList;
 public class Cuenta {
     
     private int num_cuenta;
-    private int saldo;
+    private double saldo;
     private static int num = 0;
     private LinkedList<Transaccion> transacciones;
     private LinkedList<Prestamo> prestamos;
@@ -27,11 +27,11 @@ public class Cuenta {
         this.num_cuenta = num_cuenta;
     }
 
-    public int getSaldo() {
+    public double getSaldo() {
         return saldo;
     }
     
-    public void setSaldo(int saldo) {
+    public void setSaldo(double saldo) {
         this.saldo = saldo;
     }
 

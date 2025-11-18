@@ -67,6 +67,10 @@ public class Cliente extends Usuario {
         }
         
         Cuenta destino = buscarCuenta(cuentaDestino);
+        if (cuentaDestino == this.cuenta.getNum_cuenta()) {
+            JOptionPane.showMessageDialog(null, "No puede transferir a su propia cuenta");
+            return;
+        }
         if (destino == null) {
             JOptionPane.showMessageDialog(null, "Cuenta destino no encontrada");
             return;

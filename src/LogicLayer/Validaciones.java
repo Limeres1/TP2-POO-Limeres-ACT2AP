@@ -6,91 +6,50 @@ public abstract class Validaciones {
 
 	
 	
-    public static String IngresarMail(String mensaje) {
-        String mail;
-        do {
-        	mail = JOptionPane.showInputDialog(mensaje);
-            if (mail == null) {
-            	JOptionPane.showMessageDialog(null, "Error: No debe estar vacio.");
-                return null;
-            }
-            if (!mail.matches("[^@]+@[^@]+\\.[a-zA-Z]{2,}")) {
-                JOptionPane.showMessageDialog(null, "Error: Debe seguir el ejemplo: nombre@dominio.com/.ar");
-                return null;
-            }
-        } while (mail.trim().isEmpty());
-        return mail;
-    }
-	
-	
-	public static String validarEmailCompleto(String mensaje) {
-	    String dato;
-	    
+//	public static String IngresarMail(String mensaje) {
+//	    String mail;
+//	    do {
+//	        mail = JOptionPane.showInputDialog(mensaje);
+//	        if (mail == null) {
+//	            ;
+//	        }
+//	        if (mail.trim().isEmpty()) {
+//	            JOptionPane.showMessageDialog(null, "Error: No puede estar vacío");
+//	        } else if (!mail.matches("[^@]+@[^@]+\\.[a-zA-Z]{2,}")) {
+//	            JOptionPane.showMessageDialog(null, "Error: Debe seguir el ejemplo: nombre@dominio.com/.ar");
+//	        } else {
+//	            break;
+//	        }
+//	    } while (true);
+//	    return mail.trim();
+//	}
+	public static String IngresarMail(String mensaje) {
+	    String mail;
 	    do {
-	        dato = JOptionPane.showInputDialog(mensaje);
-	        if (dato == null) {
-	            return null;
+	        mail = JOptionPane.showInputDialog(mensaje);
+	        if (mail == null) {
+	            int confirmacion = JOptionPane.showConfirmDialog(
+	                null, 
+	                "¿Está seguro que desea cancelar?", 
+	                "Confirmar", 
+	                JOptionPane.YES_NO_OPTION
+	            );
+	            if (confirmacion == JOptionPane.YES_OPTION) {
+	                return null;
+	            } else {
+	                continue;
+	            }
 	        }
-	        
-	        if (dato.trim().isEmpty()) {
+	        if (mail.trim().isEmpty()) {
 	            JOptionPane.showMessageDialog(null, "Error: No puede estar vacío");
-	            continue;
+	        } else if (!mail.matches("[^@]+@[^@]+\\.[a-zA-Z]{2,}")) {
+	            JOptionPane.showMessageDialog(null, "Error: Debe seguir el ejemplo: nombre@dominio.com/.ar");
+	        } else {
+	            break;
 	        }
-	        
-	        
-	        if (!dato.contains("@")) {
-	            JOptionPane.showMessageDialog(null, "Error: Debe contener @");
-	            continue;
-	        }
-	        
-	        String[] partes = dato.split("@");
-	        
-	        if (partes.length != 2) {
-	            JOptionPane.showMessageDialog(null, "Error: Formato de email incorrecto");
-	            continue;
-	        }
-	        
-	        String usuario = partes[0];    
-	        String dominio = partes[1];    
-	        
-	        if (usuario.trim().isEmpty()) {
-	            JOptionPane.showMessageDialog(null, "Error: Falta el nombre de usuario antes del @\n" +
-	                    "Formato correcto: usuario@dominio.com\n");
-	            continue; 
-	        }
-	        
-	        if (dominio.trim().isEmpty()) {
-	            JOptionPane.showMessageDialog(null, "Error: Falta el dominio después del @");
-	            continue;
-	        }
-	        String[] partes2 = dominio.split("\\.");
-	        
-	        if (partes2.length != 2) {
-	            JOptionPane.showMessageDialog(null, "Error: Formato de email incorrecto");
-	            continue;
-	        }
-	        
-	        String dominio2 = partes2[0];
-	        String com = partes2[1];
-	        
-	        if (dominio2.trim().isEmpty()) {
-	            JOptionPane.showMessageDialog(null, "Error: Falta el nombre del dominio @\n" +
-	                    "Formato correcto: usuario@dominio.com\n");
-	            continue; 
-	        }
-	        
-	        if (com.trim().isEmpty()) {
-	            JOptionPane.showMessageDialog(null, "Error: Falta la extension de dominio (.com)");
-	            continue;
-	        }
-	        
-	        return dato;
-	        
 	    } while (true);
-	} // PREGUNTAR COMO SE PUEDE ARREGLAR
-	
-	
-	
+	    return mail.trim();
+	}
 	
     public static String IngresarString(String mensaje) {
         String dato;
