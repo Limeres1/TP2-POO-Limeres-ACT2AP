@@ -26,8 +26,7 @@ public class Cliente extends Usuario {
         
         while (!salir) {
             int opcion = JOptionPane.showOptionDialog(null, 
-                "Bienvenido Cliente\nCuenta: " + cuenta.getNum_cuenta() + 
-                "\nSaldo: $" + cuenta.getSaldo(), 
+                "Bienvenido\nCuenta: " + cuenta.getNum_cuenta(), 
                 "Menú Cliente", 
                 0, 0, null, 
                 this.getRol().getOpciones(), 
@@ -37,66 +36,93 @@ public class Cliente extends Usuario {
                 case 0: transferir(); break;
                 case 1: depositar(); break;
                 case 2: retirar(); break;
-                case 3: consultarSaldo(); break;
-                case 4: verHistorial(); break;
-                case 5: pedirPrestamo(); break;
-                case 6: consultarPrestamo(); break;
-                case 7: salir = true; break;
+                case 3: cambioMoneda(); break;
+                case 4: consultarSaldo(); break;
+                case 5: verHistorial(); break;
+                case 6: pedirPrestamo(); break;
+                case 7: consultarPrestamo(); break;
+                case 8: salir = true; break;
                 default: break;
             }
         }
     }
-    
+    //TRANSFERIR
     private void transferir() {
-        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
-            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede realizar transferencias");
-            return;
-        }
         
         int cuentaDestino = Validaciones.IngresarInt("Ingrese número de cuenta destino:");
+        String moneda = elegirMoneda("Elegir moneda a depositar: ");
+    	if (moneda == null) {
+    		return;
+    	}
         int monto = Validaciones.IngresarInt("Ingrese monto a transferir:");
         
         if (monto <= 0) {
             JOptionPane.showMessageDialog(null, "Monto debe ser mayor a 0");
             return;
         }
-        
-        if (cuenta.getSaldo() < monto) {
-            JOptionPane.showMessageDialog(null, "Saldo insuficiente");
-            return;
-        }
-        
         Cuenta destino = buscarCuenta(cuentaDestino);
-        if (cuentaDestino == this.cuenta.getNum_cuenta()) {
-            JOptionPane.showMessageDialog(null, "No puede transferir a su propia cuenta");
-            return;
+        
+	    if (cuentaDestino == this.cuenta.getNum_cuenta()) {
+	    	JOptionPane.showMessageDialog(null, "No puede transferir a su propia cuenta");
+	        return;
+	    }
+	    if (destino == null) {
+	    	JOptionPane.showMessageDialog(null, "Cuenta destino no encontrada");
+	    return;
+	    }
+        switch(moneda) {
+        case "ARS":
+          if (cuenta.getSaldoArg() < monto) {
+          JOptionPane.showMessageDialog(null, "Saldo insuficiente");
+          return;
+          }
+            
+	        cuenta.setSaldoArg(cuenta.getSaldoArg() - monto);
+	        destino.setSaldoArg(destino.getSaldoArg() + monto);
+	        
+	        Transaccion transaccionArs = new Transaccion(monto, "TRANSFERENCIA", "Electrónico", cuenta, destino);
+	        cuenta.getTransacciones().add(transaccionArs);
+	        destino.getTransacciones().add(transaccionArs);
+            JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Pesos: $" + cuenta.getSaldoArg());
+        	break;
+        case "CNY":
+            if (cuenta.getSaldoYuan() < monto) {
+                JOptionPane.showMessageDialog(null, "Saldo insuficiente");
+                return;
+                }
+                  
+      	        cuenta.setSaldoYuan(cuenta.getSaldoYuan() - monto);
+      	        destino.setSaldoYuan(destino.getSaldoYuan() + monto);
+      	        
+      	        Transaccion transaccionYuan = new Transaccion(monto, "TRANSFERENCIA", "Electrónico", cuenta, destino);
+      	        cuenta.getTransacciones().add(transaccionYuan);
+      	        destino.getTransacciones().add(transaccionYuan);
+                  JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Yuanes: ¥" + cuenta.getSaldoYuan());
+        	break;
+        case "USD":
+            if (cuenta.getSaldoDol() < monto) {
+                JOptionPane.showMessageDialog(null, "Saldo insuficiente");
+                return;
+                }
+                  
+      	        cuenta.setSaldoDol(cuenta.getSaldoDol() - monto);
+      	        destino.setSaldoDol(destino.getSaldoDol() + monto);
+      	        
+      	        Transaccion transaccionDol = new Transaccion(monto, "TRANSFERENCIA", "Electrónico", cuenta, destino);
+      	        cuenta.getTransacciones().add(transaccionDol);
+      	        destino.getTransacciones().add(transaccionDol);
+                  JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Dolares: $" + cuenta.getSaldoDol());
+        	break;
         }
-        if (destino == null) {
-            JOptionPane.showMessageDialog(null, "Cuenta destino no encontrada");
-            return;
-        }
-        
-        if (!destino.getEstadoCuenta().equals("ACTIVA")) {
-            JOptionPane.showMessageDialog(null, "Cuenta destino está inactiva");
-            return;
-        }
-        
-        cuenta.setSaldo(cuenta.getSaldo() - monto);
-        destino.setSaldo(destino.getSaldo() + monto);
-        
-        Transaccion transaccion = new Transaccion(monto, "TRANSFERENCIA", "Electrónico", cuenta, destino);
-        cuenta.getTransacciones().add(transaccion);
-        destino.getTransacciones().add(transaccion);
-        
-        JOptionPane.showMessageDialog(null, "Transferencia exitosa!\nNuevo saldo: $" + cuenta.getSaldo());
     }
-    
+  //DEPOSITAR
     private void depositar() {
-        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
-            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede realizar depósitos");
-            return;
-        }
-        
+    	
+    	String moneda = elegirMoneda("Elegir moneda a depositar: ");
+    	if (moneda == null) {
+    		return;
+    	}
+    	
         int monto = Validaciones.IngresarInt("Ingrese monto a depositar:");
         
         if (monto <= 0) {
@@ -104,47 +130,117 @@ public class Cliente extends Usuario {
             return;
         }
         
-        cuenta.setSaldo(cuenta.getSaldo() + monto);
-        
-        Transaccion transaccion = new Transaccion(monto, "DEPÓSITO", "Efectivo", null, cuenta);
-        cuenta.getTransacciones().add(transaccion);
-        
-        JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo: $" + cuenta.getSaldo());
-    }
-    
-    private void retirar() {
-        if (!cuenta.getEstadoCuenta().equals("ACTIVA")) {
-            JOptionPane.showMessageDialog(null, "Cuenta inactiva. No puede realizar retiros");
-            return;
+        switch(moneda) {
+        case "ARS":
+            cuenta.setSaldoArg(cuenta.getSaldoArg() + monto);
+            
+            Transaccion transaccionARS = new Transaccion(monto, "DEPÓSITO", "Efectivo", null, cuenta);
+            cuenta.getTransacciones().add(transaccionARS);
+            
+            JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Pesos: $" + cuenta.getSaldoArg());
+        	break;
+        case "CNY":
+            cuenta.setSaldoYuan(cuenta.getSaldoYuan() + monto);
+            
+            Transaccion transaccionYNS = new Transaccion(monto, "DEPÓSITO", "Efectivo", null, cuenta);
+            cuenta.getTransacciones().add(transaccionYNS);
+            
+            JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Yuanes: ¥" + cuenta.getSaldoYuan());
+        	break;
+        case "USD":
+            cuenta.setSaldoDol(cuenta.getSaldoDol() + monto);
+            
+            Transaccion transaccionUSD = new Transaccion(monto, "DEPÓSITO", "Efectivo", null, cuenta);
+            cuenta.getTransacciones().add(transaccionUSD);
+            
+            JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Dolares: $" + cuenta.getSaldoDol());
+        	break;
         }
-        
+ 
+    }
+  //RETIRAR
+    private void retirar() {
+    	String moneda = elegirMoneda("Elegir moneda a retirar: ");
+    	if (moneda == null) {
+    		return;
+    	}
         int monto = Validaciones.IngresarInt("Ingrese monto a retirar:");
         
         if (monto <= 0) {
             JOptionPane.showMessageDialog(null, "Monto debe ser mayor a 0");
             return;
         }
-        
-        if (cuenta.getSaldo() < monto) {
-            JOptionPane.showMessageDialog(null, "Saldo insuficiente");
-            return;
+        switch(moneda) {
+        case "ARS":
+          if (cuenta.getSaldoArg() < monto) {
+          JOptionPane.showMessageDialog(null, "Saldo insuficiente");
+          return;
+          }
+            
+	        cuenta.setSaldoArg(cuenta.getSaldoArg() - monto);
+	        
+	        Transaccion transaccionArs = new Transaccion(monto, "RETIRO", "Electrónico", cuenta, null);
+	        cuenta.getTransacciones().add(transaccionArs);
+            JOptionPane.showMessageDialog(null, "Retiro exitoso!\nNuevo saldo Pesos: $" + cuenta.getSaldoArg());
+        	break;
+        case "CNY":
+            if (cuenta.getSaldoYuan() < monto) {
+                JOptionPane.showMessageDialog(null, "Saldo insuficiente");
+                return;
+                }
+                  
+      	        cuenta.setSaldoYuan(cuenta.getSaldoYuan() - monto);
+      	        
+      	        Transaccion transaccionYuan = new Transaccion(monto, "RETIRO", "Electrónico", cuenta, null);
+      	        cuenta.getTransacciones().add(transaccionYuan);
+                  JOptionPane.showMessageDialog(null, "Retiro exitoso!\nNuevo saldo Yuanes: ¥" + cuenta.getSaldoYuan());
+        	break;
+        case "USD":
+            if (cuenta.getSaldoDol() < monto) {
+                JOptionPane.showMessageDialog(null, "Saldo insuficiente");
+                return;
+                }
+                  
+      	        cuenta.setSaldoDol(cuenta.getSaldoDol() - monto);
+      	        
+      	        Transaccion transaccionDol = new Transaccion(monto, "RETIRO", "Electrónico", cuenta, null);
+      	        cuenta.getTransacciones().add(transaccionDol);
+                  JOptionPane.showMessageDialog(null, "Retiro exitoso!\nNuevo saldo Dolares: $" + cuenta.getSaldoDol());
+        	break;
         }
-        
-        cuenta.setSaldo(cuenta.getSaldo() - monto);
-        
-        Transaccion transaccion = new Transaccion(monto, "RETIRO", "Efectivo", cuenta, null);
-        cuenta.getTransacciones().add(transaccion);
-        
-        JOptionPane.showMessageDialog(null, "Retiro exitoso!\nNuevo saldo: $" + cuenta.getSaldo());
     }
-    
-    private void consultarSaldo() {
-        JOptionPane.showMessageDialog(null, 
-            "Número de cuenta: " + cuenta.getNum_cuenta() + 
-            "\nSaldo actual: $" + cuenta.getSaldo() +
-            "\nEstado: " + cuenta.getEstadoCuenta());
+  //CAMBIO MONEDA
+    private void cambioMoneda() {
+    	String monedaOrigen = elegirMoneda("Elegir moneda origen: ");
+    	if (monedaOrigen == null) {
+    		return;
+    	}
+    	String monedaDestino = elegirMoneda("Elegir moneda destino: ");
+    	if (monedaDestino == null) {
+    		return;
+    	}
+    	
+    	
+    	
     }
-    
+  //CONSULTAR SALDOS
+    	private void consultarSaldo() {
+    	    String mensaje = String.format(
+    	        "💳 SALDOS ACTUALES\n\n" +
+    	        "Pesos Argentinos: $%.2f ARS\n" +
+    	        "Dólares: $%.2f USD\n" +
+    	        "Yuanes: ¥%.2f CNY\n\n" +
+    	        "💰 TOTAL APROXIMADO:\n" +
+    	        "$%.2f ARS",
+    	        cuenta.getSaldoArg(),
+    	        cuenta.getSaldoDol(), 
+    	        cuenta.getSaldoYuan(),
+    	        (cuenta.getSaldoArg() + (cuenta.getSaldoDol() * 1000) + (cuenta.getSaldoYuan() * 140))
+    	    );
+    	    
+    	    JOptionPane.showMessageDialog(null, mensaje);
+    	}
+    	//HISTORIAL TRANSACCIONES
     private void verHistorial() {
         if (cuenta.getTransacciones().isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay transacciones registradas");
@@ -160,7 +256,7 @@ public class Cliente extends Usuario {
         
         JOptionPane.showMessageDialog(null, historial);
     }
-    
+  //PRESTAMOS
     private void pedirPrestamo() {
     	
         double monto = Validaciones.IngresarDouble("Ingrese monto del préstamo:");
@@ -220,7 +316,7 @@ public class Cliente extends Usuario {
             this.cuenta.getPrestamos().add(prestamo);
             
             
-            this.cuenta.setSaldo(this.cuenta.getSaldo() + (int)monto);
+            this.cuenta.setSaldoArg(this.cuenta.getSaldoArg() + (int)monto);
             
             
             Transaccion transaccion = new Transaccion(monto, "PRÉSTAMO", "Desembolso", null, this.cuenta);
@@ -229,10 +325,10 @@ public class Cliente extends Usuario {
             JOptionPane.showMessageDialog(null, 
                 "¡Préstamo aprobado!\n" +
                 "El monto de $" + monto + " ha sido depositado.\n" +
-                "Nuevo saldo: $" + this.cuenta.getSaldo());
+                "Nuevo saldo: $" + this.cuenta.getSaldoArg());
         }
     }
-    
+  //HISTORIAL PRESTAMOS
     private void consultarPrestamo() {
         if (cuenta.getPrestamos().isEmpty()) {
             JOptionPane.showMessageDialog(null, "No tiene préstamos activos");
@@ -325,4 +421,28 @@ public class Cliente extends Usuario {
         }
         return null;
     }
+  //MENU MONEDAS
+    public static String elegirMoneda(String mensaje) {
+        String[] opciones = {"Pesos (ARS)", "Dólares (USD)", "Yuanes (CNY)"};
+        
+        String seleccion = (String) JOptionPane.showInputDialog(
+            null, 
+            mensaje, 
+            "Selección de Moneda",
+            JOptionPane.QUESTION_MESSAGE, 
+            null, 
+            opciones, 
+            opciones[0]  
+        );
+        
+        if (seleccion != null) {
+            switch(seleccion) {
+                case "Pesos (ARS)": return "ARS";
+                case "Dólares (USD)": return "USD";
+                case "Yuanes (CNY)": return "CNY";
+            }
+        }
+        return null;
+    }
+    
 }

@@ -49,7 +49,7 @@ public class Empleado extends Usuario{
             }
         }
     }
-    
+    //CREAR EMPELADO
     private static void crearEmpleado() {
         String mail = Validaciones.IngresarMail("Ingrese su email:");
         
@@ -69,7 +69,7 @@ public class Empleado extends Usuario{
             "Empleado registrado exitosamente!\n" +
             "Email: " + mail);
     }
-    
+    //DAR DE BAJA CUENTA USUARIOs
     private void darDeBajaCuenta() {
         int numeroCuenta = Validaciones.IngresarInt("Ingrese número de cuenta a dar de baja:");    
     		
@@ -87,9 +87,13 @@ public class Empleado extends Usuario{
         JOptionPane.showMessageDialog(null, "Cuenta no encontrada");
    }
     
-    
+    //REPONER DINERO
     private void reponerDinero() {
         int numeroCuenta = Validaciones.IngresarInt("Ingrese número de cuenta:");
+        String moneda = Cliente.elegirMoneda("Elegir moneda a depositar: ");
+    	if (moneda == null) {
+    		return;
+    	}
         int monto = Validaciones.IngresarInt("Ingrese monto a reponer:");
         
         if (monto <= 0) {
@@ -101,20 +105,41 @@ public class Empleado extends Usuario{
             if (usuario.esCliente()) {
                 Cliente cliente = (Cliente) usuario;
                 if (cliente.getCuenta().getNum_cuenta() == numeroCuenta) {
-                    cliente.getCuenta().setSaldo(cliente.getCuenta().getSaldo() + monto);
+                    cliente.getCuenta().setSaldoArg(cliente.getCuenta().getSaldoArg() + monto);
                     
-                    Transaccion transaccion = new Transaccion(monto, "REPOSICIÓN", "Empleado", null, cliente.getCuenta());
-                    cliente.getCuenta().getTransacciones().add(transaccion);
-                    
-                    JOptionPane.showMessageDialog(null, "Dinero repuesto exitosamente\n" + "Nuevo saldo: $" + cliente.getCuenta().getSaldo());
-                    return;
+                    switch(moneda) {
+                    case "ARS":
+                        cliente.getCuenta().setSaldoArg(cliente.getCuenta().getSaldoArg() + monto);
+                        
+                        Transaccion transaccionARS = new Transaccion(monto, "DEPÓSITO", "Efectivo", null, cliente.getCuenta());
+                        cliente.getCuenta().getTransacciones().add(transaccionARS);
+                        
+                        JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Pesos: $" + cliente.getCuenta().getSaldoArg());
+                    	break;
+                    case "CNY":
+                    	cliente.getCuenta().setSaldoYuan(cliente.getCuenta().getSaldoYuan() + monto);
+                        
+                        Transaccion transaccionYNS = new Transaccion(monto, "DEPÓSITO", "Efectivo", null, cliente.getCuenta());
+                        cliente.getCuenta().getTransacciones().add(transaccionYNS);
+                        
+                        JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Yuanes: ¥" + cliente.getCuenta().getSaldoYuan());
+                    	break;
+                    case "USD":
+                    	cliente.getCuenta().setSaldoDol(cliente.getCuenta().getSaldoDol() + monto);
+                        
+                        Transaccion transaccionUSD = new Transaccion(monto, "DEPÓSITO", "Efectivo", null, cliente.getCuenta());
+                        cliente.getCuenta().getTransacciones().add(transaccionUSD);
+                        
+                        JOptionPane.showMessageDialog(null, "Depósito exitoso!\nNuevo saldo Dolares: $" + cliente.getCuenta().getSaldoDol());
+                    	break;
+                    }
                 }
             }
         }
         
         JOptionPane.showMessageDialog(null, "Cuenta no encontrada");
     }
-    
+    //VER CUENTAS
     private void verCuentas() {
         if (Usuario.getUsuarios().isEmpty()) {
             JOptionPane.showMessageDialog(null, "No hay cuentas registradas");
@@ -128,7 +153,7 @@ public class Empleado extends Usuario{
             if (usuario.esCliente()) {
                 Cliente cliente = (Cliente) usuario;
                 Cuenta cuenta = cliente.getCuenta();
-                info = info + "Cuenta: " + cuenta.getNum_cuenta() + " - Cliente: " + cliente.getMail() + " - Saldo: $" + cuenta.getSaldo() + " - Estado: " + cuenta.getEstadoCuenta() + "\n";
+                info = info + "Cuenta: " + cuenta.getNum_cuenta() + " - Cliente: " + cliente.getMail() + " - Saldo: $" + cuenta.getSaldoArg() + " - Estado: " + cuenta.getEstadoCuenta() + "\n";
             } else if (usuario.esEmpleado()) {
                 Empleado empleado = (Empleado) usuario;
                 info = info + "EMPLEADO: " + empleado.getMail() + " - Fecha inicio: " + empleado.fechaInicio + "\n";
