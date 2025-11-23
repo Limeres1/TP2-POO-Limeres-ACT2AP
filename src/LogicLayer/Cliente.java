@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 
 public class Cliente extends Usuario {
     private Cuenta cuenta;
+    private CuentaInversion cuentaInversion;
     
     public Cliente(String mail, String contr) {
         super(mail, contr, Rol.Cliente);
