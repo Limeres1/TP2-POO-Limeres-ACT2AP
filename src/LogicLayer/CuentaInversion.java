@@ -49,6 +49,35 @@ public class CuentaInversion {
 			this.historial = historial;
 		}
 	    
-
-
+		public static double generarTasaInteresDiaria() {
+			//POSIBILIDAD DE GANANCIA
+		    if (Math.random() < 0.7) {
+		        return Math.random() * 0.05;
+		    } else {
+		        return Math.random() * -0.04;
+		    }
+		}
+		    
+		    // SIMULACION
+		    public static void simularDiasInversion(CuentaInversion cuenta, int dias) {
+		        double saldoActual = cuenta.getSaldo();
+		        LocalDate fechaActual = LocalDate.now();
+		        
+		        for (int i = 1; i <= dias; i++) {
+		            double tasa = generarTasaInteresDiaria();
+		            double rendimiento = saldoActual * tasa;
+		            double nuevoSaldo = saldoActual + rendimiento;
+		            
+		            //HISTORIAL
+		            cuenta.getHistorial().add(new RegistroInversion(
+		                fechaActual.plusDays(i),
+		                saldoActual,
+		                tasa,
+		                nuevoSaldo,
+		                "RENDIMIENTO DIARIO"
+		            ));
+		            
+		            saldoActual = nuevoSaldo;
+		        }
+		    }
 }

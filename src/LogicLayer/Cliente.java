@@ -1,9 +1,13 @@
 package LogicLayer;
 
+import java.awt.Image;
 import java.time.LocalDate;
 import java.util.LinkedList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
+import UserLayer.Main;
 
 public class Cliente extends Usuario {
     private Cuenta cuenta;
@@ -21,6 +25,14 @@ public class Cliente extends Usuario {
         this.cuenta = cuenta;
     }
     
+    // ICONOS
+    ImageIcon icono = new ImageIcon(Main.class.getResource("imgs/bancoIcon.png"));
+    Image imagenEscalada = icono.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+    ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
+    
+    ImageIcon iconoInversion = new ImageIcon(Main.class.getResource("imgs/invertir.png"));
+    Image imagenEscaladaInversion = iconoInversion.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+    ImageIcon iconoInversionEscalado = new ImageIcon(imagenEscaladaInversion);
     @Override
     public void Menu() {
         boolean salir = false;
@@ -29,7 +41,7 @@ public class Cliente extends Usuario {
             int opcion = JOptionPane.showOptionDialog(null, 
                 "Bienvenido\nCuenta: " + cuenta.getNum_cuenta(), 
                 "Menú Cliente", 
-                0, 0, null, 
+                0, 0, iconoEscalado, 
                 this.getRol().getOpciones(), 
                 this.getRol().getOpciones()[0]);
             
@@ -42,7 +54,8 @@ public class Cliente extends Usuario {
                 case 5: verHistorial(); break;
                 case 6: pedirPrestamo(); break;
                 case 7: consultarPrestamo(); break;
-                case 8: salir = true; break;
+                case 8: menuInversiones();break;
+                case 9: salir = true; break;
                 default: break;
             }
         }
@@ -226,18 +239,12 @@ public class Cliente extends Usuario {
     }
   //CONSULTAR SALDOS
     	private void consultarSaldo() {
-    	    String mensaje = String.format(
-    	        "💳 SALDOS ACTUALES\n\n" +
-    	        "Pesos Argentinos: $%.2f ARS\n" +
-    	        "Dólares: $%.2f USD\n" +
-    	        "Yuanes: ¥%.2f CNY\n\n" +
+    	    String mensaje = "💳 SALDOS ACTUALES\n\n" +
+    	        "Pesos Argentinos: $" + cuenta.getSaldoArg() + " ARS\n" +
+    	        "Dólares: $" + cuenta.getSaldoDol() + " USD\n" +
+    	        "Yuanes: ¥" + cuenta.getSaldoYuan() + " CNY\n\n" +
     	        "💰 TOTAL APROXIMADO:\n" +
-    	        "$%.2f ARS",
-    	        cuenta.getSaldoArg(),
-    	        cuenta.getSaldoDol(), 
-    	        cuenta.getSaldoYuan(),
-    	        (cuenta.getSaldoArg() + (cuenta.getSaldoDol() * 1000) + (cuenta.getSaldoYuan() * 140))
-    	    );
+    	        "$" + (cuenta.getSaldoArg() + (cuenta.getSaldoDol() * 1000) + (cuenta.getSaldoYuan() * 140)) + " ARS";
     	    
     	    JOptionPane.showMessageDialog(null, mensaje);
     	}
@@ -260,7 +267,10 @@ public class Cliente extends Usuario {
   //PRESTAMOS
     private void pedirPrestamo() {
     	
+    	JOptionPane.showMessageDialog(null, "Los prestamos solo se pueden pedir en Pesos Argentinos.");
+    	
         double monto = Validaciones.IngresarDouble("Ingrese monto del préstamo:");
+        
         
         if (monto <= 0) {
             JOptionPane.showMessageDialog(null, "El monto debe ser mayor a 0");
@@ -286,19 +296,15 @@ public class Cliente extends Usuario {
         
         LocalDate fechaVencimiento = LocalDate.now().plusMonths(meses);
         
-        
-        String resumen = String.format(
-            "RESUMEN DEL PRÉSTAMO:\n\n" +
-            "Monto solicitado: $%.2f\n" +
-            "Plazo: %d meses\n" +
-            "Tasa de interés: %.1f%%\n" +
-            "Interés total: $%.2f\n" +
-            "Monto total a pagar: $%.2f\n" +
-            "Cuota mensual: $%.2f\n" +
-            "Fecha de vencimiento: %s\n\n" +
-            "¿Aceptar el préstamo?",
-            monto, meses, tasa * 100, interesTotal, montoTotal, cuotaMensual, fechaVencimiento
-        );
+        String resumen = "RESUMEN DEL PRÉSTAMO:\n\n" +
+            "Monto solicitado: $" + monto + "\n" +
+            "Plazo: " + meses + " meses\n" +
+            "Tasa de interés: " + (tasa * 100) + "%\n" +
+            "Interés total: $" + interesTotal + "\n" +
+            "Monto total a pagar: $" + montoTotal + "\n" +
+            "Cuota mensual: $" + cuotaMensual + "\n" +
+            "Fecha de vencimiento: " + fechaVencimiento + "\n\n" +
+            "¿Aceptar el préstamo?";
         
         int confirmacion = JOptionPane.showConfirmDialog(null, resumen, "Confirmar Préstamo", JOptionPane.YES_NO_OPTION);
         
@@ -351,7 +357,7 @@ public class Cliente extends Usuario {
         String[] opciones = new String[prestamosAprobados.size()];
         for (int i = 0; i < prestamosAprobados.size(); i++) {
             Prestamo p = prestamosAprobados.get(i);
-            opciones[i] = "Préstamo: $" + String.format("%.2f", p.getMontoTotal());
+            opciones[i] = "Préstamo: $" + p.getMontoTotal();
         }
         
         String seleccion = (String) JOptionPane.showInputDialog(
@@ -375,13 +381,13 @@ public class Cliente extends Usuario {
                     }
                     
                     String info = "INFORMACIÓN DEL PRÉSTAMO:\n\n" +
-                                 "Monto inicial: $" + String.format("%.2f", prestamo.getMontoTotal() / (1 + prestamo.getTasaInteres())) + "\n" +
-                                 "Monto total: $" + String.format("%.2f", prestamo.getMontoTotal()) + "\n" +
-                                 "Monto pendiente: $" + String.format("%.2f", prestamo.getMontoPendiente()) + "\n" +
+                                 "Monto inicial: $" + (prestamo.getMontoTotal() / (1 + prestamo.getTasaInteres())) + "\n" +
+                                 "Monto total: $" + prestamo.getMontoTotal() + "\n" +
+                                 "Monto pendiente: $" + prestamo.getMontoPendiente() + "\n" +
                                  "Cuotas totales: " + prestamo.getPlazoMeses() + "\n" +
                                  "Cuotas pagadas: " + cuotasPagadas + "\n" +
                                  "Cuotas pendientes: " + cuotasPendientes + "\n" +
-                                 "Cuota mensual: $" + String.format("%.2f", prestamo.getCuotas().get(0).getMontoCuota()) + "\n" +
+                                 "Cuota mensual: $" + prestamo.getCuotas().get(0).getMontoCuota() + "\n" +
                                  "Fecha vencimiento: " + prestamo.getFechaVencimiento();
                     
                     JOptionPane.showMessageDialog(null, info);
@@ -445,5 +451,149 @@ public class Cliente extends Usuario {
         }
         return null;
     }
+// INVERSION
     
+    public void crearCuentaInversion() {
+        if (cuentaInversion != null) {
+            JOptionPane.showMessageDialog(null, "Ya tiene una cuenta de inversión activa");
+            return;
+        }
+        
+        String moneda = elegirMoneda("Seleccione moneda para inversión:");
+        if (moneda == null) return;
+        
+        double monto = Validaciones.IngresarDouble("Ingrese monto inicial para inversión:");
+        
+        if (monto <= 0) {
+            JOptionPane.showMessageDialog(null, "El monto debe ser mayor a 0");
+            return;
+        }
+        
+       
+        if (!verificarFondos(moneda, monto)) {
+            JOptionPane.showMessageDialog(null, "Fondos insuficientes");
+            return;
+        }
+        
+        
+        int numCuentaInversion = generarNumeroCuentaInversion();
+        cuentaInversion = new CuentaInversion(numCuentaInversion, monto);
+        
+        descontarFondos(moneda, monto);
+        
+        JOptionPane.showMessageDialog(null, 
+            "¡Cuenta de inversión creada exitosamente!\n" +
+            "Número de cuenta: " + numCuentaInversion + "\n" +
+            "Monto inicial: " + monto + " " + moneda);
+    }
+    
+    // SIMULACION
+    public void simularRendimiento() {
+        if (cuentaInversion == null) {
+            JOptionPane.showMessageDialog(null, "Primero debe crear una cuenta de inversión");
+            return;
+        }
+        
+        int dias = Validaciones.IngresarInt("Ingrese cantidad de días a simular:");
+        if (dias <= 0) {
+            JOptionPane.showMessageDialog(null, "La cantidad de días debe ser mayor a 0");
+            return;
+        }
+        
+        CuentaInversion.simularDiasInversion(cuentaInversion, dias);
+        
+        mostrarResultadosSimulacion();
+    }
+    public void consultarHistorialInversion() {
+        if (cuentaInversion == null) {
+            JOptionPane.showMessageDialog(null, "No tiene cuenta de inversión");
+            return;
+        }
+        
+        if (cuentaInversion.getHistorial().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay movimientos en la cuenta de inversión");
+            return;
+        }
+        
+        String historial = "📈 HISTORIAL DE INVERSIÓN\n\n";
+        historial += "Cuenta: " + cuentaInversion.getNumCuenta() + "\n";
+        historial += "Saldo actual: $" + cuentaInversion.getSaldo() + "\n\n";
+        
+        for (RegistroInversion registro : cuentaInversion.getHistorial()) {
+            String tendencia = registro.getTasaInteres() >= 0 ? "📈" : "📉";
+            historial += tendencia + " " + registro.getFecha() + " | Tasa: " + 
+                (registro.getTasaInteres() * 100) + "% | Saldo: $" + registro.getSaldoFinal() + "\n";
+        }
+        
+        JOptionPane.showMessageDialog(null, historial);
+    }
+    private boolean verificarFondos(String moneda, double monto) {
+        switch (moneda) {
+            case "ARS": return cuenta.getSaldoArg() >= monto;
+            case "USD": return cuenta.getSaldoDol() >= monto;
+            case "CNY": return cuenta.getSaldoYuan() >= monto;
+            default: return false;
+        }
+    }
+    
+    private void descontarFondos(String moneda, double monto) {
+        switch (moneda) {
+            case "ARS": 
+                cuenta.setSaldoArg(cuenta.getSaldoArg() - monto);
+                break;
+            case "USD": 
+                cuenta.setSaldoDol(cuenta.getSaldoDol() - monto);
+                break;
+            case "CNY": 
+                cuenta.setSaldoYuan(cuenta.getSaldoYuan() - monto);
+                break;
+        }
+    }
+    
+    private int generarNumeroCuentaInversion() {
+        return 900000 + (int)(Math.random() * 100000);
+    }
+    
+    private void mostrarResultadosSimulacion() {
+        LinkedList<RegistroInversion> historial = cuentaInversion.getHistorial();
+        RegistroInversion ultimoRegistro = historial.getLast();
+        double saldoInicial = historial.getFirst().getSaldoInicial();
+        double rendimientoTotal = ultimoRegistro.getSaldoFinal() - saldoInicial;
+        
+        String resultado = "📊 RESULTADOS DE SIMULACIÓN\n\n" +
+            "Días simulados: " + (historial.size() - 1) + "\n" +
+            "Saldo final: $" + ultimoRegistro.getSaldoFinal() + "\n" +
+            "Rendimiento total: $" + rendimientoTotal + "\n\n" +
+            "Última tasa: " + (ultimoRegistro.getTasaInteres() * 100) + "%";
+            
+        JOptionPane.showMessageDialog(null, resultado);
+    }
+    
+    
+    private void menuInversiones() {
+        String[] opcionesInversion = {
+            "Crear Cuenta de Inversión",
+            "Simular Rendimiento", 
+            "Consultar Historial de Inversión",
+            "Volver"
+        };
+        
+        boolean volver = false;
+        while (!volver) {
+            int opcion = JOptionPane.showOptionDialog(null, 
+                "CUENTA DE INVERSIÓN", 
+                "Menú Inversiones", 
+                0, 0, iconoInversionEscalado, 
+                opcionesInversion, 
+                opcionesInversion[0]);
+            
+            switch (opcion) {
+                case 0: crearCuentaInversion(); break;
+                case 1: simularRendimiento(); break;
+                case 2: consultarHistorialInversion(); break;
+                case 3: volver = true; break;
+                default: break;
+            }
+        }
+    }
 }
