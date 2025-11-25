@@ -25,14 +25,7 @@ public class Cliente extends Usuario {
         this.cuenta = cuenta;
     }
     
-    // ICONOS
-    ImageIcon icono = new ImageIcon(Main.class.getResource("imgs/bancoIcon.png"));
-    Image imagenEscalada = icono.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
-    ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
     
-    ImageIcon iconoInversion = new ImageIcon(Main.class.getResource("imgs/invertir.png"));
-    Image imagenEscaladaInversion = iconoInversion.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
-    ImageIcon iconoInversionEscalado = new ImageIcon(imagenEscaladaInversion);
     @Override
     public void Menu() {
         boolean salir = false;
@@ -60,7 +53,10 @@ public class Cliente extends Usuario {
             }
         }
     }
+    
+     //
     //TRANSFERIR
+   //
     private void transferir() {
         
         int cuentaDestino = Validaciones.IngresarInt("Ingrese número de cuenta destino:");
@@ -129,7 +125,18 @@ public class Cliente extends Usuario {
         	break;
         }
     }
+    
+    
+    
+    
+    
+   //
   //DEPOSITAR
+ //
+    
+    
+    
+    
     private void depositar() {
     	
     	String moneda = elegirMoneda("Elegir moneda a depositar: ");
@@ -172,7 +179,17 @@ public class Cliente extends Usuario {
         }
  
     }
+    
+    
+    
+    
+   //
   //RETIRAR
+ //
+    
+    
+    
+    
     private void retirar() {
     	String moneda = elegirMoneda("Elegir moneda a retirar: ");
     	if (moneda == null) {
@@ -223,20 +240,127 @@ public class Cliente extends Usuario {
         	break;
         }
     }
+    
+    
+    
+    
+   // 
   //CAMBIO MONEDA
+ //   
+  
+    
+    
+    
+    
     private void cambioMoneda() {
-    	String monedaOrigen = elegirMoneda("Elegir moneda origen: ");
-    	if (monedaOrigen == null) {
-    		return;
-    	}
-    	String monedaDestino = elegirMoneda("Elegir moneda destino: ");
-    	if (monedaDestino == null) {
-    		return;
-    	}
-    	
-    	
-    	
+        String monedaOrigen = elegirMoneda("Elegir moneda origen: ");
+        if (monedaOrigen == null) {
+            return;
+        }
+        String monedaDestino = elegirMoneda("Elegir moneda destino: ");
+        if (monedaDestino == null) {
+            return;
+        }
+        
+        if (monedaOrigen.equals(monedaDestino)) {
+            JOptionPane.showMessageDialog(null, "No puede convertir la misma moneda");
+            return;
+        }
+        
+        double monto = Validaciones.IngresarDouble("Ingrese monto a convertir:");
+        
+        if (monto <= 0) {
+            JOptionPane.showMessageDialog(null, "El monto debe ser mayor a 0");
+            return;
+        }
+        
+        if (!verificarFondos(monedaOrigen, monto)) {
+            JOptionPane.showMessageDialog(null, "Fondos insuficientes en " + monedaOrigen);
+            return;
+        }
+        
+        double montoConvertido = convertirMoneda(monto, monedaOrigen, monedaDestino);
+        
+        String confirmacion = "¿Confirmar conversión?\n\n" +
+                             monto + " " + monedaOrigen + " → " + 
+                             montoConvertido + " " + monedaDestino + 
+                             "\n\nTasa aplicada: " + obtenerTasaConversion(monedaOrigen, monedaDestino);
+        
+        int opcion = JOptionPane.showConfirmDialog(null, confirmacion, "Confirmar Conversión", JOptionPane.YES_NO_OPTION);
+        
+        if (opcion == JOptionPane.YES_OPTION) {
+            ejecutarConversion(monto, montoConvertido, monedaOrigen, monedaDestino);
+            JOptionPane.showMessageDialog(null, "Conversión exitosa!");
+        }
     }
+
+    private double convertirMoneda(double monto, String monedaOrigen, String monedaDestino) {
+        double tasa = obtenerTasaConversion(monedaOrigen, monedaDestino);
+        return monto * tasa;
+    }
+
+    // TASAS DE CAMBIO
+    private double obtenerTasaConversion(String monedaOrigen, String monedaDestino) {
+        if (monedaOrigen.equals("ARS") && monedaDestino.equals("USD")) {
+            return 0.0010;
+        } else if (monedaOrigen.equals("ARS") && monedaDestino.equals("CNY")) {
+            return 0.0071;
+        } else if (monedaOrigen.equals("USD") && monedaDestino.equals("ARS")) {
+            return 1000.0;
+        } else if (monedaOrigen.equals("USD") && monedaDestino.equals("CNY")) {
+            return 7.1;
+        } else if (monedaOrigen.equals("CNY") && monedaDestino.equals("ARS")) {
+            return 140.0;
+        } else if (monedaOrigen.equals("CNY") && monedaDestino.equals("USD")) {
+            return 0.14;
+        }
+        return 1.0; 
+    }
+
+    private void ejecutarConversion(double montoOrigen, double montoDestino, String monedaOrigen, String monedaDestino) {
+        switch(monedaOrigen) {
+            case "ARS":
+                cuenta.setSaldoArg(cuenta.getSaldoArg() - montoOrigen);
+                break;
+            case "USD":
+                cuenta.setSaldoDol(cuenta.getSaldoDol() - montoOrigen);
+                break;
+            case "CNY":
+                cuenta.setSaldoYuan(cuenta.getSaldoYuan() - montoOrigen);
+                break;
+        }
+        
+
+        switch(monedaDestino) {
+            case "ARS":
+                cuenta.setSaldoArg(cuenta.getSaldoArg() + montoDestino);
+                break;
+            case "USD":
+                cuenta.setSaldoDol(cuenta.getSaldoDol() + montoDestino);
+                break;
+            case "CNY":
+                cuenta.setSaldoYuan(cuenta.getSaldoYuan() + montoDestino);
+                break;
+        }
+        
+        // TRANSACCION
+        Transaccion transaccion = new Transaccion(
+            (int)montoOrigen, 
+            "CAMBIO MONEDA", 
+            "Conversión: " + monedaOrigen + " a " + monedaDestino, 
+            null, 
+            cuenta
+        );
+        cuenta.getTransacciones().add(transaccion);
+    }
+
+
+    
+    
+    
+    
+    	
+    	 
   //CONSULTAR SALDOS
     	private void consultarSaldo() {
     	    String mensaje = "💳 SALDOS ACTUALES\n\n" +
@@ -264,7 +388,14 @@ public class Cliente extends Usuario {
         
         JOptionPane.showMessageDialog(null, historial);
     }
+    
+    
+    
+   // 
   //PRESTAMOS
+ //  
+    
+    
     private void pedirPrestamo() {
     	
     	JOptionPane.showMessageDialog(null, "Los prestamos solo se pueden pedir en Pesos Argentinos.");
@@ -335,7 +466,13 @@ public class Cliente extends Usuario {
                 "Nuevo saldo: $" + this.cuenta.getSaldoArg());
         }
     }
+    
+    
+   // 
   //HISTORIAL PRESTAMOS
+ //  
+    
+   
     private void consultarPrestamo() {
         if (cuenta.getPrestamos().isEmpty()) {
             JOptionPane.showMessageDialog(null, "No tiene préstamos activos");
@@ -428,7 +565,18 @@ public class Cliente extends Usuario {
         }
         return null;
     }
-  //MENU MONEDAS
+    
+    
+    
+    
+    
+     // 
+    //MENU MONEDAS
+   //   
+    
+    
+    
+    
     public static String elegirMoneda(String mensaje) {
         String[] opciones = {"Pesos (ARS)", "Dólares (USD)", "Yuanes (CNY)"};
         
@@ -451,7 +599,15 @@ public class Cliente extends Usuario {
         }
         return null;
     }
-// INVERSION
+    
+    
+    
+    
+     //
+    // INVERSION
+   //
+    
+    
     
     public void crearCuentaInversion() {
         if (cuentaInversion != null) {
@@ -487,7 +643,14 @@ public class Cliente extends Usuario {
             "Monto inicial: " + monto + " " + moneda);
     }
     
+    
+    
+     //
     // SIMULACION
+   //
+  
+    
+    
     public void simularRendimiento() {
         if (cuentaInversion == null) {
             JOptionPane.showMessageDialog(null, "Primero debe crear una cuenta de inversión");
@@ -596,4 +759,22 @@ public class Cliente extends Usuario {
             }
         }
     }
+    
+    //
+   // ICONOS
+  //
+   
+   
+   
+   ImageIcon icono = new ImageIcon(Main.class.getResource("imgs/bancoIcon.png"));
+   Image imagenEscalada = icono.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+   ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
+   
+   ImageIcon iconoInversion = new ImageIcon(Main.class.getResource("imgs/invertir.png"));
+   Image imagenEscaladaInversion = iconoInversion.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+   ImageIcon iconoInversionEscalado = new ImageIcon(imagenEscaladaInversion);
+   
+   
+   
+   
 }

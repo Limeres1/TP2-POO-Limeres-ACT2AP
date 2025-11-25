@@ -1,6 +1,11 @@
 package LogicLayer;
+import java.awt.Image;
 import java.time.LocalDate;
+
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
+import UserLayer.Main;
 
 public class Empleado extends Usuario{
     
@@ -22,9 +27,9 @@ public class Empleado extends Usuario{
         
         while (!salir) {
             int opcion = JOptionPane.showOptionDialog(null, 
-                "Bienvenido Empleado\nFecha inicio: " + fechaInicio, 
+                "Bienvenido Empleado\n", 
                 "Menú Empleado", 
-                0, 0, null, 
+                0, 0, iconoEscalado, 
                 this.getRol().getOpciones(),
                 this.getRol().getOpciones()[0]);
             
@@ -134,10 +139,11 @@ public class Empleado extends Usuario{
                     	break;
                     }
                 }
+                else {
+                	JOptionPane.showMessageDialog(null, "Cuenta no encontrada");
+                }
             }
         }
-        
-        JOptionPane.showMessageDialog(null, "Cuenta no encontrada");
     }
     //VER CUENTAS
     private void verCuentas() {
@@ -162,4 +168,7 @@ public class Empleado extends Usuario{
         
         JOptionPane.showMessageDialog(null, info);
     }
+    ImageIcon icono = new ImageIcon(Main.class.getResource("imgs/bancoIcon.png"));
+    Image imagenEscalada = icono.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+    ImageIcon iconoEscalado = new ImageIcon(imagenEscalada);
 }
