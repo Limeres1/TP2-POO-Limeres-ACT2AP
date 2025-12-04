@@ -50,11 +50,11 @@ public class CuentaInversion {
 		}
 	    
 		public static double generarTasaInteresDiaria() {
-			//POSIBILIDAD DE GANANCIA
+			//POSIBILIDAD DE GANANCIA 70%
 		    if (Math.random() < 0.7) {
-		        return Math.random() * 0.05;
+		        return Math.random() * 0.05; //Alcista
 		    } else {
-		        return Math.random() * -0.04;
+		        return Math.random() * -0.03; //Bajista
 		    }
 		}
 		    

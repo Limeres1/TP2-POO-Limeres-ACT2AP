@@ -40,15 +40,14 @@ public class Cliente extends Usuario {
             
             switch (opcion) {
                 case 0: transferir(); break;
-                case 1: depositar(); break;
-                case 2: retirar(); break;
-                case 3: cambioMoneda(); break;
-                case 4: consultarSaldo(); break;
-                case 5: verHistorial(); break;
-                case 6: pedirPrestamo(); break;
-                case 7: consultarPrestamo(); break;
-                case 8: menuInversiones();break;
-                case 9: salir = true; break;
+                case 1: menuCajero(); break;
+                case 2: cambioMoneda(); break;
+                case 3: consultarSaldo(); break;
+                case 4: verHistorial(); break;
+                case 5: pedirPrestamo(); break;
+                case 6: consultarPrestamo(); break;
+                case 7: menuInversiones();break;
+                case 8: salir = true; break;
                 default: break;
             }
         }
@@ -680,12 +679,13 @@ public class Cliente extends Usuario {
         
         String historial = "📈 HISTORIAL DE INVERSIÓN\n\n";
         historial += "Cuenta: " + cuentaInversion.getNumCuenta() + "\n";
-        historial += "Saldo actual: $" + cuentaInversion.getSaldo() + "\n\n";
+        historial += "Saldo actual: $" + String.format("%.2f", cuentaInversion.getSaldo()) + "\n\n";
         
         for (RegistroInversion registro : cuentaInversion.getHistorial()) {
             String tendencia = registro.getTasaInteres() >= 0 ? "📈" : "📉";
-            historial += tendencia + " " + registro.getFecha() + " | Tasa: " + 
-                (registro.getTasaInteres() * 100) + "% | Saldo: $" + registro.getSaldoFinal() + "\n";
+            historial += tendencia + " " + registro.getFecha() + " | Tasa: " +
+                String.format("%.2f", registro.getTasaInteres() * 100) + "% | Saldo: $" +
+                String.format("%.2f", registro.getSaldoFinal()) + "\n";
         }
         
         JOptionPane.showMessageDialog(null, historial);
@@ -725,9 +725,9 @@ public class Cliente extends Usuario {
         
         String resultado = "📊 RESULTADOS DE SIMULACIÓN\n\n" +
             "Días simulados: " + (historial.size() - 1) + "\n" +
-            "Saldo final: $" + ultimoRegistro.getSaldoFinal() + "\n" +
-            "Rendimiento total: $" + rendimientoTotal + "\n\n" +
-            "Última tasa: " + (ultimoRegistro.getTasaInteres() * 100) + "%";
+            "Saldo final: $" + String.format("%.2f", ultimoRegistro.getSaldoFinal()) + "\n" +
+            "Rendimiento total: $" + String.format("%.2f", rendimientoTotal) + "\n\n" +
+            "Última tasa: " + String.format("%.2f", ultimoRegistro.getTasaInteres() * 100) + "%";
             
         JOptionPane.showMessageDialog(null, resultado);
     }
@@ -759,6 +759,40 @@ public class Cliente extends Usuario {
             }
         }
     }
+    
+      //
+     // MENU CAJERO
+    //
+    
+    private void menuCajero() {
+        String[] opcionesCajero = {
+            "Depositar efectivo",
+            "Retirar efectivo",
+            "Volver"
+        };
+        
+        boolean volver = false;
+        while (!volver) {
+            int opcion = JOptionPane.showOptionDialog(
+                null,
+                "CAJERO AUTOMÁTICO\nSeleccione una opción:",
+                "Menú Cajero",
+                0,
+                0,
+                iconoEscalado,
+                opcionesCajero,
+                opcionesCajero[0]
+            );
+            
+            switch (opcion) {
+                case 0: depositar(); break;
+                case 1: retirar(); break;
+                case 2: volver = true; break;
+                default: break;
+            }
+        }
+    }
+    
     
     //
    // ICONOS
