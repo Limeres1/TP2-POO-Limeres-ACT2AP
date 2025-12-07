@@ -79,5 +79,6 @@ public class CuentaInversion {
 		            
 		            saldoActual = nuevoSaldo;
 		        }
+		        cuenta.setSaldo(saldoActual);
 		    }
 }
